@@ -1,3 +1,4 @@
+from django.core.serializers import get_serializer
 from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
@@ -5,14 +6,18 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from course.models import Course, Lesson
-from course.serializers import CourseSerializer, LessonSerializer
+from course.serializers import CourseSerializer, LessonSerializer, DetailSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     """Класс вывода списка курсов, создания/редактирования/удаления курса"""
 
     queryset = Course.objects.all()
-    serializer_class = CourseSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return DetailSerializer
+        return CourseSerializer
 
 
 class LessonList(generics.ListCreateAPIView):
