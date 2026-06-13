@@ -5,14 +5,16 @@ from course.models import Course, Lesson
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['id', 'name', 'description', 'image', 'course', 'video_path']
+        fields = ['id', 'name', 'description', 'image', 'course', 'video_path', 'owner']
+        read_only_fields = ('owner',)
 
 
 class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'image']
+        fields = ['id', 'name', 'description', 'image', 'owner']
+        read_only_fields = ('owner',)
 
 class DetailSerializer(serializers.ModelSerializer):
 
@@ -32,9 +34,11 @@ class DetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['name', 'description', 'image', 'count_lessons', 'lessons']
+        read_only_fields = ('owner', 'count_lessons', 'lessons')
 
 
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['id', 'name', 'description', 'image', 'course', 'video_path']
+        fields = ['id', 'name', 'description', 'image', 'course', 'video_path', 'owner']
+        read_only_fields = ('owner',)

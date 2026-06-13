@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 class Course(models.Model):
     """Модель курса"""
 
@@ -15,6 +16,7 @@ class Course(models.Model):
         verbose_name="Превью курса",
         help_text="Загрузите превью курса",
     )
+    owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, verbose_name="Автор", blank=True, null=True)
 
     class Meta:
         verbose_name = "Курс"
@@ -47,6 +49,7 @@ class Lesson(models.Model):
         related_name="courses",
     )
     video_path = models.CharField(max_length=255, verbose_name="Cсылка на видео", help_text="Укажите ссылку на видео")
+    owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, verbose_name="Автор", blank=True, null=True)
 
     class Meta:
         verbose_name = "Урок"
