@@ -6,7 +6,8 @@ from users.models import Payments, User
 class PaymentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payments
-        fields = ['id', 'user', 'created_payments', 'course', 'lesson', 'amount', 'payment_method']
+        fields = ['id', 'user', 'created_payments', 'course', 'lesson', 'amount', 'payment_method', 'link', 'session_id']
+        read_only_fields = ['link', 'session_id', 'user']
 
 
 class UserSerializer(serializers.ModelSerializer):

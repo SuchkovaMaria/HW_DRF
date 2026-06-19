@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from users.models import User
+from users.models import User, Payments
 from django.contrib.auth.models import Permission
 
 
@@ -18,3 +18,7 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(Permission)
 class PermitionAdmin(admin.ModelAdmin):
     list_display = ("name", "codename")
+
+@admin.register(Payments)
+class PaymentsAdmin(admin.ModelAdmin):
+    list_display = ('course', 'lesson', 'payment_method', 'session_id', 'link', 'user')

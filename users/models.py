@@ -62,6 +62,8 @@ class Payments(models.Model):
     payment_method = models.CharField(
         max_length=11, verbose_name="Способ оплаты", help_text="Укажите способ оплаты: наличные или перевод на счет"
     )
+    session_id = models.CharField(max_length=200, verbose_name="session_id", blank=True, null=True, help_text="Укажите session_id")
+    link = models.URLField(max_length=800, verbose_name="Ссылка на платеж", blank=True, null=True)
 
     class Meta:
         verbose_name = "Платеж"
