@@ -6,7 +6,7 @@ from django.contrib.auth.models import Permission
 
 @admin.register(User)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("id", "username", "email", "password", "phone", 'get_groups', 'is_staff', 'is_active')
+    list_display = ("id", "username", "email","last_login", "password", "phone", 'get_groups', 'is_staff', 'is_active')
     list_filter = ("email",)
     search_fields = ("phone", "email")
 

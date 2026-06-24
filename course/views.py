@@ -8,6 +8,7 @@ from rest_framework import generics
 from course.models import Course, Lesson, Subscriptions
 from course.pagination import CustomPagination
 from course.serializers import CourseSerializer, LessonSerializer, DetailSerializer, SubscriptionsSerializer
+from course.tasks import mail_about_update_course
 from users.permissions import IsModers, IsOwner
 
 
@@ -26,6 +27,16 @@ class CourseViewSet(viewsets.ModelViewSet):
         # Автоматически сохраняем текущего пользователя как автора
         serializer.save(owner=self.request.user)
 
+    def perform_update(self, serializer):
+        serializer.save()
+        course_id  = serializer.data.get("id")
+        subscriptions_in_course = Subscriptions.objects.filter(course=course_id)
+        email_list = []
+        for subscription in subscriptions_in_course:
+            email_list.append(subscription.owner.email)
+        mail_about_update_course.delay(email_list, course_id)
+
+
     def get_permissions(self):
         if self.action == "create":
             self.permission_classes = (~IsModers,)
@@ -33,7 +44,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             self.permission_classes = (~IsModers | IsOwner,)
         elif self.action == 'retrieve':
             self.permission_classes = (IsModers | IsOwner,)
-            # self.permission_classes = (IsAuthenticated,) для проверки вывода, что информация о подписке будет отображаться (потому что я сомневаюсь что автор курса будет подписываться на свой курс как было указано требование в прошлом дз)
+            # self.permission_classes = (IsAuthenticated,) #для проверки вывода, что информация о подписке будет отображаться (потому что я сомневаюсь что автор курса будет подписываться на свой курс как было указано требование в прошлом дз)
         return super().get_permissions()
 
 
@@ -59,12 +70,27 @@ class LessonCreate(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+        course_id = serializer.data.get("course")
+        subscriptions_in_course = Subscriptions.objects.filter(course=course_id)
+        email_list = []
+        for subscription in subscriptions_in_course:
+            email_list.append(subscription.owner.email)
+        mail_about_update_course.delay(email_list, course_id)
 
 class LessonUpdate(generics.UpdateAPIView):
     """Изменение урока"""
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = (IsModers | IsOwner, IsAuthenticated)
+
+    def perform_update(self, serializer):
+        serializer.save()
+        course_id = serializer.data.get("course")
+        subscriptions_in_course = Subscriptions.objects.filter(course=course_id)
+        email_list = []
+        for subscription in subscriptions_in_course:
+            email_list.append(subscription.owner.email)
+        mail_about_update_course.delay(email_list, course_id)
 
 class LessonDelete(generics.DestroyAPIView):
     """Удаление урока"""
