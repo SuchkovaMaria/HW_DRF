@@ -6,9 +6,22 @@ authors = [
     {name = "Mariya_Suchkova",email = "mashakraxmal@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.14,<4.0"
 dependencies = [
-    "django (>=6.0.6,<7.0.0)"
+    "django (>=6.0.6,<7.0.0)",
+    "djangorestframework (>=3.17.1,<4.0.0)",
+    "python-dotenv (>=1.2.2,<2.0.0)",
+    "psycopg2-binary (>=2.9.12,<3.0.0)",
+    "pillow (>=12.2.0,<13.0.0)",
+    "django-filter (>=25.2,<26.0)",
+    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
+    "coverage (>=7.14.1,<8.0.0)",
+    "drf-yasg (>=1.21.15,<2.0.0)",
+    "stripe (>=15.2.1,<16.0.0)",
+    "celery (>=5.6.3,<6.0.0)",
+    "eventlet (>=0.41.0,<0.42.0)",
+    "redis (==7.4.0)",
+    "django-celery-beat (>=2.9.0,<3.0.0)",
 ]
 
 
