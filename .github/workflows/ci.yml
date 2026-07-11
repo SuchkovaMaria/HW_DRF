@@ -83,54 +83,21 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: admin-vm1
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+
           script: |
-            
-            if ! command -v docker &> /dev/null; then
-              echo "Docker не найден. Принудительно очищаем старый кэш репозиториев..."
-            
-              
-              sudo rm -f /etc/apt/sources.list.d/docker*.list
-              sudo rm -f /etc/apt/sources.list.d/ubuntu.sources
-              sudo rm -f /etc/apt/sources.list
-            
-              
-              sudo tee /etc/apt/sources.list.d/ubuntu.sources << 'EOF'
-            Types: deb
-            URIs: http://yandex.ru
-            Suites: noble noble-updates noble-backports noble-security
-            Components: main restricted universe multiverse
-            Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
-            EOF
-            
-              
-              sudo rm -rf /var/lib/apt/lists/*
-            
-              echo "Запускаем установку Docker через официальный скрипт..."
-              wget -qO- https://get.docker.com | sh
-            
-              
-              sudo groupadd docker || true
-              sudo usermod -aG docker admin-vm1
-            
-              echo "Docker успешно установлен!"
-            fi
-            
-            
-            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_NAME }}" --password-stdin
-            
-            
+            docker --version
+            docker login -u "${{ secrets.DOCKER_HUB_NAME }}" \
+            --password-stdin <<< "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}"
+
             docker pull ${{ secrets.DOCKER_HUB_NAME }}/hw_35:${{ github.sha }}
-            
-            
+
             docker stop myapp-container || true
             docker rm myapp-container || true
-            
-            
+
             docker run -d \
-              --name myapp-container \
-              -p 8000:8000 \
-              --restart unless-stopped \
-              ${{ secrets.DOCKER_HUB_NAME }}/hw_35:${{ github.sha }}
-            
-            
+            --name myapp-container \
+            -p 8000:8000 \
+            --restart unless-stopped \
+            ${{ secrets.DOCKER_HUB_NAME }}/hw_35:${{ github.sha }}
+
             docker image prune -f
