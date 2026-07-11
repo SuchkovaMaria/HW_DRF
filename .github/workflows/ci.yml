@@ -54,6 +54,7 @@ jobs:
           SECRET_KEY: 'test-secret-key-for-github-actions'
           LANGUAGE: 'ru'
           LC_ALL: 'ru_RU.UTF-8'
+          CELERY_TASK_ALWAYS_EAGER: 'True'
         run: poetry run python manage.py test
 
   build:
