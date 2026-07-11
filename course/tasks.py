@@ -15,5 +15,5 @@ def mail_about_update_course(emails, course_id):
         subject="Изменения курса",
         message=f"Спешим сообщить, что курс {course.name}, на который вы подписаны обновился, скорее смотри что там нового\n{url}",
         from_email=EMAIL_HOST_USER,
-        recipient_list=emails
+        recipient_list=emails,
     )

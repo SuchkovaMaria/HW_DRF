@@ -6,19 +6,30 @@ from django.contrib.auth.models import Permission
 
 @admin.register(User)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("id", "username", "email","last_login", "password", "phone", 'get_groups', 'is_staff', 'is_active')
+    list_display = (
+        "id",
+        "username",
+        "email",
+        "last_login",
+        "password",
+        "phone",
+        "is_staff",
+        "is_active",
+    )
     list_filter = ("email",)
     search_fields = ("phone", "email")
 
-    def get_groups(self, obj):
-        return ", ".join([group.name for group in obj.groups.all()])
+    # def get_groups(self, obj):
+    #     return ", ".join([group.name for group in obj.groups.all()])
+    #
+    #     get_groups.short_description = "Groups"
 
-        get_groups.short_description = "Groups"
 
 @admin.register(Permission)
 class PermitionAdmin(admin.ModelAdmin):
     list_display = ("name", "codename")
 
+
 @admin.register(Payments)
 class PaymentsAdmin(admin.ModelAdmin):
-    list_display = ('course', 'lesson', 'payment_method', 'session_id', 'link', 'user')
+    list_display = ("course", "lesson", "payment_method", "session_id", "link", "user")

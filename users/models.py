@@ -1,16 +1,15 @@
-from django.contrib.auth import user_logged_out
-from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.db import models
-from django.dispatch import receiver
-from django.utils import timezone
+
 
 from course.models import Course, Lesson
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError('Email обязателен')
+            raise ValueError("Email обязателен")
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -18,9 +17,10 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
         return self.create_user(email, password, **extra_fields)
+
 
 class User(AbstractUser, PermissionsMixin):
     """Класс Пользователь"""
@@ -66,7 +66,9 @@ class Payments(models.Model):
     payment_method = models.CharField(
         max_length=11, verbose_name="Способ оплаты", help_text="Укажите способ оплаты: наличные или перевод на счет"
     )
-    session_id = models.CharField(max_length=200, verbose_name="session_id", blank=True, null=True, help_text="Укажите session_id")
+    session_id = models.CharField(
+        max_length=200, verbose_name="session_id", blank=True, null=True, help_text="Укажите session_id"
+    )
     link = models.URLField(max_length=800, verbose_name="Ссылка на платеж", blank=True, null=True)
 
     class Meta:

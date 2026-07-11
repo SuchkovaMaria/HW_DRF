@@ -1,7 +1,6 @@
 from django.db import models
 
 
-
 class Course(models.Model):
     """Модель курса"""
 
@@ -65,7 +64,9 @@ class Lesson(models.Model):
 class Subscriptions(models.Model):
     """Модель подписок"""
 
-    owner = models.ForeignKey("users.User", on_delete=models.CASCADE, verbose_name="Ученик", related_name="student_subscriptions")
+    owner = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, verbose_name="Ученик", related_name="student_subscriptions"
+    )
     course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Курс")
 
     class Meta:

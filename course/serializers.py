@@ -1,4 +1,4 @@
-from rest_framework import serializers, request
+from rest_framework import serializers
 
 from course.models import Course, Lesson, Subscriptions
 from course.validators import validete_expression_test
@@ -10,16 +10,17 @@ class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ['id', 'name', 'description', 'image', 'course', 'video_path', 'owner']
-        read_only_fields = ('owner',)
+        fields = ["id", "name", "description", "image", "course", "video_path", "owner"]
+        read_only_fields = ("owner",)
 
 
 class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'image', 'owner']
-        read_only_fields = ('owner',)
+        fields = ["id", "name", "description", "image", "owner"]
+        read_only_fields = ("owner",)
+
 
 class DetailSerializer(serializers.ModelSerializer):
 
@@ -39,7 +40,7 @@ class DetailSerializer(serializers.ModelSerializer):
 
     def get_subscription(self, obj):
         status = "Вы не подписаны на курс"
-        request = self.context.get('request')
+        request = self.context.get("request")
         if request:
             subscriptions = Subscriptions.objects.filter(owner=request.user)
             for subscription in subscriptions:
@@ -47,11 +48,10 @@ class DetailSerializer(serializers.ModelSerializer):
                     status = "Вы подписаны курс"
         return status
 
-
     class Meta:
         model = Course
-        fields = ['name', 'description', 'image', 'count_lessons', 'lessons', 'subscription']
-        read_only_fields = ('owner', 'count_lessons', 'lessons')
+        fields = ["name", "description", "image", "count_lessons", "lessons", "subscription"]
+        read_only_fields = ("owner", "count_lessons", "lessons")
 
 
 class SubscriptionsSerializer(serializers.ModelSerializer):
@@ -60,5 +60,8 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscriptions
-        fields = ['id', 'owner', 'course']
-        read_only_fields = ('owner', 'course',)
+        fields = ["id", "owner", "course"]
+        read_only_fields = (
+            "owner",
+            "course",
+        )
