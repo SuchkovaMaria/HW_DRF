@@ -50,6 +50,8 @@ jobs:
           poetry install --no-interaction --no-root
 
       - name: Run test
+        env:
+          SECRET_KEY: 'test-secret-key-for-github-actions'
         run: python manage.py test
 
   build:
