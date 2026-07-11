@@ -87,7 +87,7 @@ jobs:
             if ! command -v docker &> /dev/null; then
               echo "Docker не найден. Устанавливаем альтернативным методом..."
             
-              wget -qO- https://docker.com | sh
+              wget -qO- https://get.docker.com | sh
             
               sudo groupadd docker || true
               sudo usermod -aG docker admin-vm1
