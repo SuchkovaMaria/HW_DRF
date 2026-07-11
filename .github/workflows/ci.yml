@@ -85,21 +85,26 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             if ! command -v docker &> /dev/null; then
-              echo "Docker не найден. Устанавливаем через Snap..."
-              sudo snap install docker
-              
-              sudo adduser admin-vm1 snap_daemon || true
-              sudo chmod 666 /var/snap/docker/current/run/docker.sock || true
-              
-              sleep 3
+              echo "Docker не найден. Устанавливаем через apt-get..."
+              sudo apt-get update
+              sudo apt-get install -y docker.io
+            
+              sudo usermod -aG docker admin-vm1
+            
+              echo "Docker успешно установлен!"
             fi
+            
             echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_NAME }}" --password-stdin
+            
             docker pull ${{ secrets.DOCKER_HUB_NAME }}/hw_35:${{ github.sha }}
+            
             docker stop myapp-container || true
             docker rm myapp-container || true
+            
             docker run -d \
               --name myapp-container \
               -p 8000:8000 \
               --restart unless-stopped \
               ${{ secrets.DOCKER_HUB_NAME }}/hw_35:${{ github.sha }}
+            
             docker image prune -f
