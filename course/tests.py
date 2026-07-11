@@ -33,7 +33,7 @@ class LessonTestCase(APITestCase):
         url = reverse("course:lesson-create")
         data = {"name": "test_leasson_two", "course": self.course.pk, "video_path": "https://youtube//test2", "owner": self.user.pk}
         response = self.client.post(url, data)
-        print("\nОШИБКИ ВАЛИДАЦИИ:", response.data.get("video_path"))
+        # print("\nОШИБКИ ВАЛИДАЦИИ:", response.data.get("video_path"))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Lesson.objects.all().count(), 1)
 
@@ -63,7 +63,7 @@ class SubscriptionsTestCase(APITestCase):
 
     def test_subscriptions_create(self):
         url = reverse("course:subscriptions-create", args=[self.course_2.pk])
-        data = {"course": self.course.pk, "owner": self.user.pk}
+        data = {"course": self.course_2.pk, "owner": self.user.pk}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Subscriptions.objects.all().count(), 2)
@@ -72,7 +72,7 @@ class SubscriptionsTestCase(APITestCase):
         url = reverse("course:subscriptions-create", args=[self.course.pk])
         data = {"course": self.course.pk, "owner": self.user.pk}
         response = self.client.post(url, data)
-        print("\nОШИБКИ ВАЛИДАЦИИ:", response.data)
+        # print("\nОШИБКИ ВАЛИДАЦИИ:", response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Subscriptions.objects.all().count(), 1)
 
