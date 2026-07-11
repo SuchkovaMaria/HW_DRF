@@ -24,15 +24,25 @@ class LessonTestCase(APITestCase):
 
     def test_lesson_create(self):
         url = reverse("course:lesson-create")
-        data = {"name": "test_leasson_two", "course": self.course.pk, "video_path": "https://youtube.com//test2", "owner": self.user.pk}
+        data = {
+            "name": "test_leasson_two",
+            "course": self.course.pk,
+            "video_path": "https://youtube.com//test2",
+            "owner": self.user.pk,
+        }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lesson.objects.all().count(), 2)
 
     def test_lesson_create_valid(self):
         url = reverse("course:lesson-create")
-        data = {"name": "test_leasson_two", "course": self.course.pk, "video_path": "https://youtube//test2", "owner": self.user.pk}
-        response = self.client.post(url, data, format='json')
+        data = {
+            "name": "test_leasson_two",
+            "course": self.course.pk,
+            "video_path": "https://youtube//test2",
+            "owner": self.user.pk,
+        }
+        response = self.client.post(url, data, format="json")
         print("\nОШИБКИ ВАЛИДАЦИИ:", response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Lesson.objects.all().count(), 1)
@@ -71,7 +81,7 @@ class SubscriptionsTestCase(APITestCase):
     def test_subscriptions_create_error(self):
         url = reverse("course:subscriptions-create", args=[self.course.pk])
         data = {"course": self.course.pk, "owner": self.user.pk}
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data, format="json")
         print("\nОШИБКИ ВАЛИДАЦИИ:", response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Subscriptions.objects.all().count(), 1)
