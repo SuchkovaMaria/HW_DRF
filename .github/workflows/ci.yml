@@ -104,6 +104,7 @@ jobs:
 
             # 3. Копируем docker-compose.yml на сервер
             cat << 'EOF' > docker-compose.yml
+            version: '3.8'
 
             services:
               db:
@@ -181,6 +182,7 @@ jobs:
                     condition: service_healthy
                 networks:
                   - app-network
+
               celery-beat:
                 image: ${DOCKER_HUB_NAME}/hw_35:${TAG:-latest}
                 container_name: celery-beat
@@ -200,33 +202,33 @@ jobs:
                 networks:
                   - app-network
 
-              volumes:
-                postgres_data:
-                redis_data:
-  
-              networks:
-                app-network:
-                  driver: bridge
-              EOF
+            volumes:
+              postgres_data:
+              redis_data:
 
-              # 4. Логин в Docker Hub
-              echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
-                docker login -u "${{ secrets.DOCKER_HUB_NAME }}" --password-stdin
-  
-              # 5. Останавливаем старые контейнеры
-              docker-compose down || true
-  
-              # 6. Запускаем все контейнеры
-              docker-compose up -d
-  
-              # 7. Ждем запуска
-              sleep 10
+            networks:
+              app-network:
+                driver: bridge
+            EOF
 
-              # 8. Проверяем статус
-              docker-compose ps
+            # 4. Логин в Docker Hub
+            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
+              docker login -u "${{ secrets.DOCKER_HUB_NAME }}" --password-stdin
 
-              # 9. Проверяем логи
-              docker-compose logs web --tail 20
+            # 5. Останавливаем старые контейнеры
+            docker-compose down || true
 
-              # 10. Очистка
-              docker image prune -f
+            # 6. Запускаем все контейнеры
+            docker-compose up -d
+
+            # 7. Ждем запуска
+            sleep 10
+
+            # 8. Проверяем статус
+            docker-compose ps
+
+            # 9. Проверяем логи
+            docker-compose logs web --tail 20
+
+            # 10. Очистка
+            docker image prune -f
