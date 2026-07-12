@@ -77,40 +77,156 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
       - name: Deploy to Remote Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: admin-vm1
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-
           script: |
-            docker --version
-            cat << 'EOF' > .env
+            # 1. Создаем .env файл на сервере
+            cat << 'EOF' > /home/admin-vm1/.env
             SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
             DEBUG=False
             DB_NAME=${{ secrets.DB_NAME }}
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DOCKER_HUB_NAME=${{ secrets.DOCKER_HUB_NAME }}
+            TAG=latest
             EOF
-            
-            docker login -u "${{ secrets.DOCKER_HUB_NAME }}" \
-            --password-stdin <<< "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}"
 
-            docker pull ${{ secrets.DOCKER_HUB_NAME }}/hw_35:latest
-            
-            docker run --rm \
-              --env-file .env \
-              ${{ secrets.DOCKER_HUB_NAME }}/hw_35:latest \
-              python manage.py migrate
+            # 2. Создаем директорию для проекта
+            mkdir -p /home/admin-vm1/app
+            cd /home/admin-vm1/app
 
-            docker stop myapp-container || true
-            docker rm myapp-container || true
+            # 3. Копируем docker-compose.yml на сервер
+            cat << 'EOF' > docker-compose.yml
 
-            docker run -d \
-            --name myapp-container \
-            -p 8000:8000 \
-            --restart unless-stopped \
-            ${{ secrets.DOCKER_HUB_NAME }}/hw_35:latest
+            services:
+              db:
+                image: postgres:16
+                container_name: postgres-db
+                restart: unless-stopped
+                volumes:
+                  - postgres_data:/var/lib/postgresql/data
+                env_file:
+                  - /home/admin-vm1/.env
+                environment:
+                  POSTGRES_DB: ${DB_NAME}
+                  POSTGRES_USER: ${DB_USER}
+                  POSTGRES_PASSWORD: ${DB_PASSWORD}
+                networks:
+                  - app-network
+                healthcheck:
+                  test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 5
 
-            docker image prune -f
+              redis:
+                image: redis:7-alpine
+                container_name: redis-cache
+                restart: unless-stopped
+                volumes:
+                  - redis_data:/data
+                networks:
+                  - app-network
+                healthcheck:
+                  test: ["CMD", "redis-cli", "ping"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 5
+
+              web:
+                image: ${DOCKER_HUB_NAME}/hw_35:${TAG:-latest}
+                container_name: myapp-container
+                restart: unless-stopped
+                ports:
+                  - "8000:8000"
+                env_file:
+                  - /home/admin-vm1/.env
+                environment:
+                  DB_HOST: db
+                  DB_PORT: 5432
+                  REDIS_HOST: redis
+                  REDIS_PORT: 6379
+                depends_on:
+                  db:
+                    condition: service_healthy
+                  redis:
+                    condition: service_healthy
+                networks:
+                  - app-network
+                command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+
+              celery:
+                image: ${DOCKER_HUB_NAME}/hw_35:${TAG:-latest}
+                container_name: celery-worker
+                restart: unless-stopped
+                command: celery -A config worker --loglevel=info -P eventlet
+                env_file:
+                  - /home/admin-vm1/.env
+                environment:
+                  DB_HOST: db
+                  DB_PORT: 5432
+                  REDIS_HOST: redis
+                  REDIS_PORT: 6379
+                depends_on:
+                  db:
+                    condition: service_healthy
+                  redis:
+                    condition: service_healthy
+                networks:
+                  - app-network
+              celery-beat:
+                image: ${DOCKER_HUB_NAME}/hw_35:${TAG:-latest}
+                container_name: celery-beat
+                restart: unless-stopped
+                command: celery -A config beat --scheduler django --loglevel=info
+                env_file:
+                  - /home/admin-vm1/.env
+                environment:
+                  DB_HOST: db
+                  DB_PORT: 5432
+                  REDIS_HOST: redis
+                  REDIS_PORT: 6379
+                depends_on:
+                  - db
+                  - redis
+                  - celery
+                networks:
+                  - app-network
+
+              volumes:
+                postgres_data:
+                redis_data:
+  
+              networks:
+                app-network:
+                  driver: bridge
+              EOF
+
+              # 4. Логин в Docker Hub
+              echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
+                docker login -u "${{ secrets.DOCKER_HUB_NAME }}" --password-stdin
+  
+              # 5. Останавливаем старые контейнеры
+              docker-compose down || true
+  
+              # 6. Запускаем все контейнеры
+              docker-compose up -d
+  
+              # 7. Ждем запуска
+              sleep 10
+
+              # 8. Проверяем статус
+              docker-compose ps
+
+              # 9. Проверяем логи
+              docker-compose logs web --tail 20
+
+              # 10. Очистка
+              docker image prune -f
