@@ -89,7 +89,7 @@ jobs:
             docker login -u "${{ secrets.DOCKER_HUB_NAME }}" \
             --password-stdin <<< "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}"
 
-            docker pull ${{ secrets.DOCKER_HUB_NAME }}/hw_35:${{ github.sha }}
+            docker pull ${{ secrets.DOCKER_HUB_NAME }}/hw_35:latest
 
             docker stop myapp-container || true
             docker rm myapp-container || true
@@ -98,6 +98,6 @@ jobs:
             --name myapp-container \
             -p 8000:8000 \
             --restart unless-stopped \
-            ${{ secrets.DOCKER_HUB_NAME }}/hw_35:${{ github.sha }}
+            ${{ secrets.DOCKER_HUB_NAME }}/hw_35:latest
 
             docker image prune -f
