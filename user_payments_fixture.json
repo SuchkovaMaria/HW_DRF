@@ -1,0 +1,183 @@
+[
+{
+    "model": "course.course",
+    "pk": 1,
+    "fields": {
+        "name": "тестовый курс 1",
+        "description": "тест 1",
+        "image": ""
+    }
+},
+{
+    "model": "course.course",
+    "pk": 2,
+    "fields": {
+        "name": "тестовый курс 2",
+        "description": "тест 2",
+        "image": ""
+    }
+},
+{
+    "model": "course.lesson",
+    "pk": 1,
+    "fields": {
+        "name": "тестовый урок 1",
+        "description": "тест 1",
+        "image": "",
+        "course": null,
+        "video_path": "test1"
+    }
+},
+{
+    "model": "course.lesson",
+    "pk": 3,
+    "fields": {
+        "name": "тестовый урок 2",
+        "description": "тест 2",
+        "image": "",
+        "course": null,
+        "video_path": "test2"
+    }
+},
+{
+    "model": "course.lesson",
+    "pk": 4,
+    "fields": {
+        "name": "тестовый урок 3",
+        "description": "тест 3",
+        "image": "",
+        "course": 1,
+        "video_path": "test3"
+    }
+},
+{
+    "model": "course.lesson",
+    "pk": 5,
+    "fields": {
+        "name": "тестовый урок 4",
+        "description": "тест 4",
+        "image": "",
+        "course": 2,
+        "video_path": "test4"
+    }
+},
+{
+    "model": "course.lesson",
+    "pk": 6,
+    "fields": {
+        "name": "тестовый урок 5",
+        "description": "тест 5",
+        "image": "",
+        "course": 2,
+        "video_path": "test5"
+    }
+},
+{
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+        "password": "",
+        "last_login": null,
+        "is_superuser": false,
+        "email": "test@test.com",
+        "phone": "1111111111",
+        "avatar": "",
+        "city": "test_city",
+        "s_active": true,
+        "is_staff": false,
+        "date_joined": "2026-06-05T08:34:57.656Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+        "password": "",
+        "last_login": null,
+        "is_superuser": false,
+        "email": "test@test1.com",
+        "phone": null,
+        "avatar": "",
+        "city": null,
+        "s_active": true,
+        "is_staff": false,
+        "date_joined": "2026-06-05T09:20:08.531Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "users.payments",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "created_payments": "2026-06-05T08:34:57.688Z",
+        "course": 2,
+        "lesson": null,
+        "amount": 1000.5,
+        "payment_method": "Наличные"
+    }
+},
+{
+    "model": "users.payments",
+    "pk": 2,
+    "fields": {
+        "user": 1,
+        "created_payments": "2026-06-05T08:44:03.951Z",
+        "course": 2,
+        "lesson": null,
+        "amount": 1000.5,
+        "payment_method": "Наличные"
+    }
+},
+{
+    "model": "users.payments",
+    "pk": 3,
+    "fields": {
+        "user": 1,
+        "created_payments": "2026-06-05T08:45:02.576Z",
+        "course": 2,
+        "lesson": null,
+        "amount": 1000.5,
+        "payment_method": "Наличные"
+    }
+},
+{
+    "model": "users.payments",
+    "pk": 4,
+    "fields": {
+        "user": 3,
+        "created_payments": "2026-06-05T09:20:08.548Z",
+        "course": 1,
+        "lesson": null,
+        "amount": 1000.5,
+        "payment_method": "Перевод"
+    }
+},
+{
+    "model": "users.payments",
+    "pk": 5,
+    "fields": {
+        "user": 3,
+        "created_payments": "2026-06-05T09:20:22.168Z",
+        "course": 1,
+        "lesson": null,
+        "amount": 1000.5,
+        "payment_method": "Наличные"
+    }
+},
+{
+    "model": "users.payments",
+    "pk": 6,
+    "fields": {
+        "user": 3,
+        "created_payments": "2026-06-05T09:22:02.251Z",
+        "course": null,
+        "lesson": 4,
+        "amount": 1000.5,
+        "payment_method": "Наличные"
+    }
+}
+]
