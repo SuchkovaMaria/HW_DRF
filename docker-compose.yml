@@ -1,6 +1,5 @@
 services:
   web:
-#    build: .
     image: suchkovamaria/hw_35:latest
     working_dir: /app
     command: sh -c "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
@@ -64,7 +63,6 @@ services:
       retries: 5
 
   celery:
-#    build: .
     image: suchkovamaria/hw_35:latest
     command: celery -A config worker --loglevel=info -P eventlet
     working_dir: /app
@@ -78,7 +76,6 @@ services:
     restart: always
 
   celery-beat:
-#    build: .
     image: suchkovamaria/hw_35:latest
     command: celery -A config beat --scheduler django --loglevel=info
     volumes:
