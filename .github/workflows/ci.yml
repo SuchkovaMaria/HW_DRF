@@ -87,7 +87,7 @@ jobs:
           username: admin-vm1
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml"
-          target: "/app/"
+          target: "/home/admin-vm1/app/"
 
       - name: Deploy to Remote Server via SSH
         uses: appleboy/ssh-action@v1.0.3
