@@ -12,6 +12,10 @@ services:
       - ./.env
     environment:
       HOST: db
+      PORT: 5432
+      NAME: ${NAME}
+      USER: ${USER}
+      PASSWORD: ${PASSWORD}
     networks:
       - foo
 
