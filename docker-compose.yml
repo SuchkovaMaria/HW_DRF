@@ -1,6 +1,6 @@
 services:
   web:
-    build: .
+#    build: .
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - .:/app
@@ -50,7 +50,7 @@ services:
       - foo
 
   celery:
-    build: .
+#    build: .
     command: celery -A config worker --loglevel=info -P eventlet
     volumes:
       - .:/app
@@ -65,7 +65,7 @@ services:
     restart: always
 
   celery-beat:
-    build: .
+#    build: .
     command: celery -A config beat --scheduler django --loglevel=info
     volumes:
       - .:/app
