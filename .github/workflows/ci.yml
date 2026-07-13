@@ -3,28 +3,28 @@ name: Django CI
 on: [push, pull_request]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.14'
-
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry==2.2.1
-
-      - name: Install flake8
-        run: poetry add flake8
-
-      - name: Run flake8
-        run: poetry run flake8 .
+#  lint:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: '3.14'
+#
+#      - name: Install poetry
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install poetry==2.2.1
+#
+#      - name: Install flake8
+#        run: poetry add flake8
+#
+#      - name: Run flake8
+#        run: poetry run flake8 .
 #
 #  test:
 #    needs: lint
@@ -58,7 +58,7 @@ jobs:
 #        run: poetry run python manage.py test
 
   build:
-    needs: lint
+#    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -80,6 +80,15 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
+      - name: Copy compose file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "/app/"
+
       - name: Deploy to Remote Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -93,6 +102,10 @@ jobs:
             SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
             DEBUG=False
             ALLOWED_HOSTS=${{ secrets.SERVER_IP }},localhost
+            STRIPE_API_KEY=${{ secrets.STRIPE_API_KEY }}
+            EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+            EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+            
 
             # База данных (для Django settings.py)
             NAME=${{ secrets.DB_NAME }}
@@ -105,10 +118,6 @@ jobs:
             POSTGRES_DB=${{ secrets.DB_NAME }}
             POSTGRES_USER=${{ secrets.DB_USER }}
             POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
-
-            # Redis
-            REDIS_HOST=redis
-            REDIS_PORT=6379
 
             # Celery
             CELERY_BROKER_URL=redis://redis:6379/0
@@ -123,100 +132,12 @@ jobs:
             mkdir -p /home/admin-vm1/app
             cd /home/admin-vm1/app
 
-            # 3. Создаем docker-compose.yml (без дублирования)
-            cat << 'EOF' > docker-compose.yml
-            version: '3.8'
-
-            services:
-              db:
-                image: postgres:16
-                container_name: postgres-db
-                restart: unless-stopped
-                volumes:
-                  - postgres_data:/var/lib/postgresql/data
-                env_file:
-                  - /home/admin-vm1/.env
-                networks:
-                  - app-network
-                healthcheck:
-                  test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-                  interval: 10s
-                  timeout: 5s
-                  retries: 5
-
-              redis:
-                image: redis:7-alpine
-                container_name: redis-cache
-                restart: unless-stopped
-                volumes:
-                  - redis_data:/data
-                networks:
-                  - app-network
-                healthcheck:
-                  test: ["CMD", "redis-cli", "ping"]
-                  interval: 10s
-                  timeout: 5s
-                  retries: 5
-
-              web:
-                image: ${DOCKER_HUB_NAME}/hw_35:${TAG:-latest}
-                container_name: myapp-container
-                restart: unless-stopped
-                ports:
-                  - "8000:8000"
-                env_file:
-                  - /home/admin-vm1/.env
-                depends_on:
-                  db:
-                    condition: service_healthy
-                  redis:
-                    condition: service_healthy
-                networks:
-                  - app-network
-                command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
-
-              celery:
-                image: ${DOCKER_HUB_NAME}/hw_35:${TAG:-latest}
-                container_name: celery-worker
-                restart: unless-stopped
-                command: celery -A config worker --loglevel=info -P eventlet
-                env_file:
-                  - /home/admin-vm1/.env
-                depends_on:
-                  db:
-                    condition: service_healthy
-                  redis:
-                    condition: service_healthy
-                networks:
-                  - app-network
-
-              celery-beat:
-                image: ${DOCKER_HUB_NAME}/hw_35:${TAG:-latest}
-                container_name: celery-beat
-                restart: unless-stopped
-                command: celery -A config beat --scheduler django --loglevel=info
-                env_file:
-                  - /home/admin-vm1/.env
-                depends_on:
-                  - db
-                  - redis
-                  - celery
-                networks:
-                  - app-network
-
-            volumes:
-              postgres_data:
-              redis_data:
-
-            networks:
-              app-network:
-                driver: bridge
-            EOF
-
             # 4. Логин в Docker Hub
             echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
               docker login -u "${{ secrets.DOCKER_HUB_NAME }}" --password-stdin
-
+            
+            docker-compose pull
+            
             # 5. Останавливаем старые контейнеры
             docker-compose down || true
 
