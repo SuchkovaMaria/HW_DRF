@@ -89,6 +89,15 @@ jobs:
           source: "docker-compose.yml"
           target: "/home/admin-vm1/app/"
 
+      - name: Copy compose file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP}}
+          username: admin-vm1
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "/nginx/nginx.conf"
+          target: "/home/admin-vm1/app/nginx/"
+
       - name: Deploy to Remote Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -97,7 +106,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # 1. Создаем .env файл с ВСЕМИ переменными
-            cat << 'EOF' > /home/admin-vm1/.env
+            cat << 'EOF' > /home/admin-vm1/app/.env
             # Django
             SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
             DEBUG=False
