@@ -148,19 +148,19 @@ jobs:
             docker-compose pull
             
             # 5. Останавливаем старые контейнеры
-            docker compose down || true
+            docker-compose down || true
 
             # 6. Запускаем все контейнеры
-            docker compose up -d
+            docker-compose up -d
 
             # 7. Ждем запуска
             sleep 10
 
             # 8. Проверяем статус
-            docker compose ps
+            docker-compose ps
 
             # 9. Проверяем логи
-            docker compose logs web --tail 20
+            docker-compose logs web --tail 20
 
             # 10. Очистка
             docker image prune -f
