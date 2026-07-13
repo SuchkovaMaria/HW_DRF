@@ -90,6 +90,8 @@ services:
       - static_volume:/app/staticfiles
     depends_on:
       - web
+    networks:
+      - foo
 
 volumes:
   postgres_data:
